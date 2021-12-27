@@ -36,3 +36,11 @@
     transform: rotate(360deg);
   }
 }
+
+table, td {
+  border: 1px solid black;
+  width: 570px;
+  height: 140px;
+  background: green;
+  border-collapse: collapse;
+}

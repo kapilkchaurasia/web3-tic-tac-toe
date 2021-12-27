@@ -19,9 +19,9 @@ contract ThreeInARow {
         return player2;
     }
 
-    function joinTheGame() public {
-        // require(msg.value > 1, "mini. entry is 1 wei");
-        // require(player2 != address(0), "join other game");
+    function joinTheGame() payable public {
+        require(msg.value > 1, "minimum entry is 1 wei");
+        require(player2 == address(0x0000000000000000000000000000000000000000), "join other game");
         player2 = msg.sender;
     }
     
@@ -31,9 +31,9 @@ contract ThreeInARow {
     function makeAMove(uint8[] memory move) public {
         string memory symbol;
         if(moveCount % 2 == 0 && msg.sender == player2) {
-            revert("wait la");
+            revert("wait your turn");
         } else if(moveCount % 2 != 0 && msg.sender == player1) {
-            revert("wait la");
+            revert("wait your turn");
         }
         if(msg.sender == player1) {
             symbol = 'x';

@@ -7,7 +7,7 @@ contract GameManager {
     address gameBoardAddress;
 
     constructor() payable {
-        //require(msg.value > 1, "mini. entry is 1 wei");
+        require(msg.value > 1, "minimum entry is 1 wei");
         ThreeInARow board = new ThreeInARow(msg.sender);
         gameBoardAddress = address(board);
     }

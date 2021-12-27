@@ -15,7 +15,7 @@ async function main() {
   
 
   const GameManager = await hre.ethers.getContractFactory("GameManager");
-  const gameManager = await GameManager.deploy();
+  const gameManager = await GameManager.deploy({value: 100000});
   await gameManager.deployed();
   console.log("GameManager deployed to:", gameManager.address);
 }

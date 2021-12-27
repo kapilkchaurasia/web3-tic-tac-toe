@@ -14,7 +14,12 @@ function App() {
     const [gameBoardAddress, setGameBoardAddress] = useState()
     const [gameBoard, setGameBoard] = useState()
     const [gameBoardAddressP2, setGameBoardAddressP2] = useState()
-    const [gameBoardP2, setGameBoardP2] = useState()
+    const [move, setMove] = useState()
+    const [game, setGame] = useState([[null, null, null],
+        [null, null, null],
+        [null, null, null]])
+    const [playerName, setPlayerName] = useState("Untitled")
+    
     let gameManager = new ethers.Contract(gameManagerAddress, GameManager.abi, provider)
 
     async function startNewGame() {
@@ -23,17 +28,11 @@ function App() {
             console.log('data: ', data)
             setGameBoardAddress(data)
             console.log('gameBoardAddress: ', gameBoardAddress)
-            let x  = new ethers.Contract(data, BoardManager.abi, provider)
-            setGameBoard(x)
-        } catch(err){
-            console.log("Error: ", err)
-        }
-    }
-
-    async function fetchPlayer1() {
-        try {
-            const data = await gameBoard.getPlayer1()
-            console.log('data: ', data)
+            const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+            const signer = provider.getSigner()
+            let contract  = new ethers.Contract(data, BoardManager.abi, signer)
+            setGameBoard(contract)
+            setPlayerName(account)
         } catch(err){
             console.log("Error: ", err)
         }
@@ -42,6 +41,7 @@ function App() {
     async function getBoard() {
         try {
             const data = await gameBoard.getBoard()
+            setGame(data)
             console.log('data: ', data)
         } catch(err){
             console.log("Error: ", err)
@@ -54,35 +54,54 @@ function App() {
             const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
             console.log({ account })
             const signer = provider.getSigner()
-            let x = new ethers.Contract(gameBoardAddressP2, BoardManager.abi, signer)
-            setGameBoardP2(x)
-            await x.joinTheGame();
+            let contract = new ethers.Contract(gameBoardAddressP2, BoardManager.abi, signer)
+            setGameBoard(contract)
+            const transaction = await contract.joinTheGame({value: 100000})
+            await transaction.wait()
+            setPlayerName(account)
         } catch(err){
             console.log("Error: ", err)
         }
     }
-
-    async function fetchPlayer2() {
+    
+    async function makeAMove() {
         try {
-            const data = await gameBoardP2.getPlayer2()
-            console.log('data: ', data)
+            const transaction = await gameBoard.makeAMove(move.split(" "))
+            await transaction.wait()
+            console.log('data: ', transaction)
+            await getBoard()
         } catch(err){
             console.log("Error: ", err)
+            alert('wait for your turn');
         }
     }
-
+    
     return (
       <div className="App">
         <header className="App-header">
-          <button onClick={startNewGame}>Start Game</button>
-            <button onClick={fetchPlayer1}>Fetch Player1</button>
-            <button onClick={getBoard}>Show board</button>
+            <p><b>Player Name: {playerName}</b></p>
+            <button onClick={startNewGame}>Start Game</button>
             <button onClick={joinTheGame}>Join the game</button>
-            <input onChange={e => setGameBoardAddressP2(e.target.value)} placeholder="Set greeting" />
-            <button onClick={fetchPlayer2}>Fetch Player2</button>
+            <input onChange={e => setGameBoardAddressP2(e.target.value)} placeholder="Game Address" />
+            <button onClick={makeAMove}>Make a move</button>
+            <input onChange={e => setMove(e.target.value)} placeholder="0 2" />
+            <div>
+                <table>
+                    <tbody>
+                    {game.slice(0, game.length).map((item, index) => {
+                        return (
+                            <tr>
+                                <td>{item[0]}</td>
+                                <td>{item[1]}</td>
+                                <td>{item[2]}</td>
+                            </tr>
+                        );
+                    })}
+                    </tbody>
+                </table>
+            </div>
         </header>
       </div>
   );
 }
-
 export default App;
