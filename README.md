@@ -1,4 +1,4 @@
-# Basic Sample Hardhat Project
+# Tic tac toe on Web3
 
 This project demonstrates a basic web3 project in form of game: tic-tac-toe . It comes with solidity contract, test for that contract, a sample script that deploys that contract, and UI build using ether.js and react.
 
